@@ -1,8 +1,11 @@
 class BinaryNode():
+    """
+    Node/Leaf for a binary tree
+    """
 
-    def __init__(self, ID, coord):
+    def __init__(self, ID, value):
         self.ID = ID
-        self.xy = coord
+        self.value = value 
         self.left = None
         self.right = None
         self.parent = None
@@ -45,8 +48,14 @@ class BinaryNode():
 
 
 class BinaryTree():
+    """
+    General class for a binary tree (i.e., at most 2 children)
+    """
 
     def __init__(self, root):
+        """
+        root = BinaryNode
+        """
         self.root = root
 
     def preordertraversal(self):
@@ -59,7 +68,40 @@ class BinaryTree():
         self.root.inorder()
 
 
-if __name__ == "__main__":
+
+class SortedBinaryTree(BinaryTree):
+    """
+    Class for a sorted binary tree
+    """
+
+    def __init__(self, ll):
+        """
+        ll = list of objects that can be compared
+        """
+        self.root = None
+        for nn in ll:
+            self.insert(BinaryNode(nn, nn))
+
+    def insert(self, node):
+        if self.root == None:
+            self.root = node
+        else:
+            nn = self.root
+            while True:
+                if node.value < nn.value:
+                    if nn.left == None:
+                        nn.addleftchild(node)
+                        return
+                    nn = nn.left
+                else:
+                    if nn.right == None:
+                        nn.addrightchild(node)
+                        return
+                    nn = nn.right
+
+
+##########################################################
+def test_binarytree():
     """
                     0
             1               2
@@ -80,9 +122,26 @@ if __name__ == "__main__":
     nodes[5].addleftchild(nodes[9])
     tt = BinaryTree(nodes[0])
 
+    print('Testing tree traversals')
     print("Pre-order traversal")
     tt.preordertraversal()
     print("Post-order traversal")
     tt.postordertraversal()
     print("In-order traversal")
     tt.inordertraversal()
+
+
+def test_sortedbinarytree():
+    print('Testing sorted binary tree')
+    ll = [5,4,7,9,6,8,1,3]
+    print(ll)
+    tt = SortedBinaryTree(ll)
+    print('Inorder traversal returns sorted list')
+    tt.inordertraversal()
+    print('Preorder traversal')
+    tt.preordertraversal()
+
+
+if __name__ == "__main__":
+    test_binarytree()
+    test_sortedbinarytree()
