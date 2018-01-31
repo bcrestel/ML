@@ -1,3 +1,6 @@
+import numpy as np
+from numpy.random import randint
+
 class BinaryNode():
     """
     Node/Leaf for a binary tree
@@ -22,7 +25,7 @@ class BinaryNode():
         self.parent = node
 
     def print(self):
-        print('ID={}'.format(self.ID))
+        print('ID={}, value={}'.format(self.ID, self.value))
 
     def preorder(self):
         self.print()
@@ -100,6 +103,75 @@ class SortedBinaryTree(BinaryTree):
                     nn = nn.right
 
 
+
+class KDTree(BinaryTree):
+    """
+    Implement a kd-tree for partition of a multi-dimensional dataset
+    """
+
+    def __init__(self, ll):
+        """
+        ll = list of points
+        """
+        self.exact = True
+        self.K = len(ll[0])
+        self.ID = -1
+        self.root = self.assignchild(ll, 0)
+        
+
+
+    def assignchild(self, ll, dim):
+        pivot = self.findpivot(ll, dim)
+        self.ID += 1
+        pivotnode = BinaryNode(self.ID, pivot)
+        left, right = self.split(ll, pivot, dim)
+        
+        if len(left) > 0:
+            pivotnode.addleftchild(self.assignchild(left, dim+1 % self.K))
+        if len(right) > 0:
+            pivotnode.addrightchild(self.assignchild(right, dim+1 % self.K))
+
+        return pivotnode
+
+
+    def findpivot(self, ll, dim):
+        """
+        ll = list of points to find a pivot
+        dim = dimension along which pivot is searched
+        """
+        if len(ll) == 1:
+            return ll[0]
+        else:
+            # option 1: use exact median
+            if self.exact:
+                mylist = ll
+            # option 2: use approx median
+            else:
+                mylist = list(np.array(ll)[randint(0, len(ll), 100)])
+            mylist.sort(key=(lambda x:x[dim]))
+            return mylist[len(mylist)//2]
+
+
+    def split(self, ll, pivot, dim):
+        """
+        split list ll in two groups with dim-coordinates lesser or greater
+        than dim-coordinate of the pivot
+        """
+        lesser = []
+        greater = []
+        for xy in ll:
+            if xy != pivot:
+                if xy[dim] < pivot[dim]:
+                    lesser.append(xy)
+                else:
+                    greater.append(xy)
+        return lesser, greater
+        
+
+
+
+
+
 ##########################################################
 def test_binarytree():
     """
@@ -142,6 +214,15 @@ def test_sortedbinarytree():
     tt.preordertraversal()
 
 
+def test_kdtree():
+    print('Test kd-tree')
+    ll = [[2,0,4],[0,1,0],[4,2,-1],[3,3,2],[-1,4,3],[1,5,1]]
+    print('ll={}'.format(ll))
+    tt = KDTree(ll)
+    tt.preordertraversal()
+
+
 if __name__ == "__main__":
     test_binarytree()
     test_sortedbinarytree()
+    test_kdtree()
