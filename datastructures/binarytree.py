@@ -1,5 +1,5 @@
 import numpy as np
-from numpy.random import randint
+from numpy.random import randint, choice
 
 class BinaryNode():
     """
@@ -70,6 +70,25 @@ class BinaryTree():
     def inordertraversal(self):
         self.root.inorder()
 
+    def print(self, n=np.inf):
+        current = [self.root]
+        nextone = []
+        ii = 0
+        while len(current) > 0:
+            for nn in current:
+                if nn != None:
+                    print('{}({})'.format(nn.ID, nn.value), end="\t")
+                    nextone.append(nn.left)
+                    nextone.append(nn.right)
+                elif nn == None:
+                    print('{}({})'.format(nn, nn), end="\t")
+            current = nextone
+            nextone = []
+            print('')
+            ii += 1
+            if ii > n:
+                break
+
 
 
 class SortedBinaryTree(BinaryTree):
@@ -109,16 +128,16 @@ class KDTree(BinaryTree):
     Implement a kd-tree for partition of a multi-dimensional dataset
     """
 
-    def __init__(self, ll):
+    def __init__(self, ll, exact=True, samplesize=100):
         """
         ll = list of points
         """
-        self.exact = True
+        self.exact = exact
+        self.samplesize = samplesize
         self.K = len(ll[0])
         self.ID = -1
         self.root = self.assignchild(ll, 0)
         
-
 
     def assignchild(self, ll, dim):
         pivot = self.findpivot(ll, dim)
@@ -127,9 +146,9 @@ class KDTree(BinaryTree):
         left, right = self.split(ll, pivot, dim)
         
         if len(left) > 0:
-            pivotnode.addleftchild(self.assignchild(left, dim+1 % self.K))
+            pivotnode.addleftchild(self.assignchild(left, (dim+1) % self.K))
         if len(right) > 0:
-            pivotnode.addrightchild(self.assignchild(right, dim+1 % self.K))
+            pivotnode.addrightchild(self.assignchild(right, (dim+1) % self.K))
 
         return pivotnode
 
@@ -143,12 +162,13 @@ class KDTree(BinaryTree):
             return ll[0]
         else:
             # option 1: use exact median
-            if self.exact:
+            if self.exact or len(ll) <= self.samplesize:
                 mylist = ll
             # option 2: use approx median
             else:
-                mylist = list(np.array(ll)[randint(0, len(ll), 100)])
-            mylist.sort(key=(lambda x:x[dim]))
+                mylist = [list(ii) \
+                for ii in np.array(ll)[choice(len(ll), self.samplesize, replace=False)]]
+            mylist.sort(key=(lambda x : x[dim]))
             return mylist[len(mylist)//2]
 
 
@@ -211,18 +231,36 @@ def test_sortedbinarytree():
     print('Inorder traversal returns sorted list')
     tt.inordertraversal()
     print('Preorder traversal')
-    tt.preordertraversal()
+    tt.print()
 
 
 def test_kdtree():
     print('Test kd-tree')
-    ll = [[2,0,4],[0,1,0],[4,2,-1],[3,3,2],[-1,4,3],[1,5,1]]
+    ll = [[2,3],[5,4],[9,6],[4,7],[8,1],[7,2]] # wikipedia example
     print('ll={}'.format(ll))
     tt = KDTree(ll)
-    tt.preordertraversal()
+    tt.print()
+
+def test_kdtree_sample():
+    print('Test kd-tree sampled')
+    ll = [list(ii) for ii in randint(-10,10,200).reshape((-1,5))]
+    b=[ii[0] for ii in ll]
+    b.sort()
+    print(b)
+    print('Exact median')
+    tt = KDTree(ll)
+    tt.print(2)
+    print('Sample-based median (5)')
+    tt = KDTree(ll, False, 5)
+    tt.print(2)
+    print('Sample-based median (30)')
+    tt = KDTree(ll, False, 30)
+    tt.print(2)
+
 
 
 if __name__ == "__main__":
     test_binarytree()
     test_sortedbinarytree()
     test_kdtree()
+    test_kdtree_sample()
