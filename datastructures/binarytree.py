@@ -243,17 +243,17 @@ def test_kdtree():
 
 def test_kdtree_sample():
     print('Test kd-tree sampled')
-    ll = [list(ii) for ii in randint(-10,10,200).reshape((-1,5))]
+    ll = [list(ii) for ii in randint(-10,10,3000).reshape((-1,3))]
     b=[ii[0] for ii in ll]
     b.sort()
-    print(b)
+    #print(b)
     print('Exact median')
     tt = KDTree(ll)
     tt.print(2)
     print('Sample-based median (5)')
     tt = KDTree(ll, False, 5)
     tt.print(2)
-    print('Sample-based median (30)')
+    print('Sample-based median (50)')
     tt = KDTree(ll, False, 30)
     tt.print(2)
 
