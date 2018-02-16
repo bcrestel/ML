@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from scipy.sparse import csr_matrix
+from scipy.sparse import coo_matrix
 import itertools
 
 def read_netflix(filename):
@@ -46,4 +46,5 @@ if __name__ == "__main__":
     td = totaldistr(df)
     tdpm = distrratingpermovie(df)
     data, rows, cols = moviematrix(df)
-    spmat = csr_matrix((data, (rows, cols)))
+    spmat = coo_matrix((data, (rows, cols)))
+    dfm = pd.SparseDataFrame(spmat)
